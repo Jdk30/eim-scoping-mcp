@@ -13,7 +13,7 @@ Le premier protocole fourni porte sur les **erreurs innées du métabolisme (EIM
 Python 3.10 ou plus récent.
 
 ```bash
-git clone <URL-DU-DEPOT>
+git clone https://github.com/Jdk30/eim-scoping-mcp.git
 cd eim-scoping-mcp
 pip install -r requirements.txt
 ```
