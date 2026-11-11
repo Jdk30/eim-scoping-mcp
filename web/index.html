@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scoping review EIM en Afrique</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1b1f24;--muted:#5d6673;--line:#dfe3e8;--accent:#1f6f8b;
+--inc:#1b7f4b;--exc:#b3372f;--unc:#9a6b00;--incbg:#e4f4ea;--excbg:#fbe9e7;--uncbg:#fbf1d6}
+@media (prefers-color-scheme:dark){:root{--bg:#14171b;--card:#1d2127;--text:#e6e9ee;--muted:#9aa4b1;
+--line:#2f353d;--accent:#5fb3cf;--inc:#5fca8f;--exc:#f08a80;--unc:#e2b34a;--incbg:#1d3528;--excbg:#3b2220;--uncbg:#3a2f14}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center}
+header h1{font-size:17px;margin:0}
+header small{color:var(--muted)}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{border:0;background:none;color:var(--muted);padding:6px 12px;border-radius:6px;font:inherit;cursor:pointer}
+nav button.on{background:var(--accent);color:#fff}
+main{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+h2{font-size:18px;margin:24px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile b{display:block;font-size:26px;line-height:1.2}
+.tile span{color:var(--muted);font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+td.num,th.num{text-align:right}
+tr.click{cursor:pointer}tr.click:hover{background:var(--bg)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+select,input,textarea,button.b{font:inherit;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+textarea{width:100%;min-height:54px}
+button.b{cursor:pointer}
+button.inc{background:var(--inc);color:#fff;border-color:var(--inc)}
+button.exc{background:var(--exc);color:#fff;border-color:var(--exc)}
+button.unc{background:var(--unc);color:#fff;border-color:var(--unc)}
+button.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+kbd{font:12px ui-monospace,monospace;border:1px solid currentColor;border-radius:4px;padding:0 4px;opacity:.8}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:8px}
+.meta a{color:var(--accent)}
+.title{font-size:19px;font-weight:600;line-height:1.35;margin:0 0 12px}
+.abs{white-space:pre-wrap}
+.pill{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12.5px;font-weight:600}
+.pill.include{background:var(--incbg);color:var(--inc)}.pill.exclude{background:var(--excbg);color:var(--exc)}
+.pill.uncertain{background:var(--uncbg);color:var(--unc)}.pill.unscreened{background:var(--bg);color:var(--muted)}
+progress{width:180px;height:10px}
+.note{color:var(--muted);font-size:13.5px}
+.strip{border-left:4px solid var(--accent);padding:10px 14px;background:var(--bg);border-radius:0 8px 8px 0;margin-top:12px}
+.err{color:var(--exc)}
+ul{margin:6px 0;padding-left:20px}
+</style>
+</head>
+<body>
+<header>
+  <div><h1 id="ptitle">Scoping review</h1><small id="pver"></small></div>
+  <nav id="nav"></nav>
+</header>
+<main id="main"></main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const api = async (path, opts) => {
+  const r = await fetch(path, opts);
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+};
+const LABEL = {include:"Inclure", exclude:"Exclure", uncertain:"Incertain", unscreened:"Non triée"};
+const STAGE = {title_abstract:"Titres et résumés", full_text:"Texte intégral"};
+const VIEWS = {dash:"Tableau de bord", tri:"Tri", refs:"Références", accord:"Accord avec l'IA", proto:"Protocole"};
+const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+const S = {view:"dash", scope:store("scope") || "sample", stage:"title_abstract", reviewer:store("reviewer") || "",
+           rec:null, protocol:null, refs:{status:"all", q:"", offset:0}};
+
+function nav() {
+  $("#nav").innerHTML = Object.entries(VIEWS).map(([k, v]) =>
+    `<button class="${S.view === k ? "on" : ""}" data-v="${k}">${v}</button>`).join("");
+  $("#nav").querySelectorAll("button").forEach((b) => b.onclick = () => go(b.dataset.v));
+}
+function go(v) { S.view = v; nav(); ({dash, tri, refs, accord, proto})[v](); }
+const pill = (st) => `<span class="pill ${st}">${LABEL[st] || st}</span>`;
+
+/* ---------- Tableau de bord ---------- */
+async function dash() {
+  const d = await api("/api/summary"), f = d.flow, ta = f.title_abstract, ft = f.full_text;
+  const src = Object.entries(f.identified_by_source).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="num">${v}</td></tr>`).join("");
+  const reasons = (o) => Object.entries(o).map(([k, v]) => `<tr><td>${esc(k)} — ${esc(S.protocol.exclusion_reason_codes[k] || "")}</td><td class="num">${v}</td></tr>`).join("") || `<tr><td colspan="2" class="note">Aucune exclusion enregistrée</td></tr>`;
+  const ai = d.ai_recommendations;
+  $("#main").innerHTML = `
+  <h2>Avancement du tri (décisions humaines)</h2>
+  <div class="tiles">
+    <div class="tile"><b>${f.unique_records}</b><span>références uniques</span></div>
+    <div class="tile"><b>${ta.screened}</b><span>triées sur titre et résumé</span></div>
+    <div class="tile"><b>${ta.not_yet_screened}</b><span>restant à trier</span></div>
+    <div class="tile"><b>${ta.included}</b><span>incluses à cette étape</span></div>
+    <div class="tile"><b>${ta.uncertain}</b><span>incertaines</span></div>
+    <div class="tile"><b>${ta.excluded}</b><span>exclues</span></div>
+  </div>
+  <p class="note">Échantillon de validation : ${d.progress.sample.screened} / ${d.progress.sample.total} triées.
+  Recommandations de l'IA enregistrées : ${(ai.include || 0) + (ai.exclude || 0) + (ai.uncertain || 0)} (elles ne comptent pas dans le diagramme de flux).</p>
+  <h2>Diagramme de flux</h2>
+  <div class="card"><table>
+    <tr><th>Identification</th><th class="num">n</th></tr>${src}
+    <tr><td><b>Total identifié</b></td><td class="num"><b>${f.identified_total}</b></td></tr>
+    <tr><td>Doublons retirés</td><td class="num">${f.duplicates_removed}</td></tr>
+    <tr><td><b>Références à trier</b></td><td class="num"><b>${f.unique_records}</b></td></tr>
+    <tr><th>Tri sur titre et résumé — exclusions par motif</th><th class="num">${ta.excluded}</th></tr>${reasons(ta.excluded_by_reason)}
+    <tr><th>Texte intégral — évaluées</th><th class="num">${ft.screened}</th></tr>${reasons(ft.excluded_by_reason)}
+    <tr><td><b>Études incluses</b></td><td class="num"><b>${ft.included}</b></td></tr>
+  </table></div>
+  <h2>Recherches exécutées</h2>
+  <div class="card"><table><tr><th>Source</th><th>Groupe</th><th>Date (UTC)</th><th class="num">Trouvées</th><th class="num">Récupérées</th></tr>
+  ${f.searches.map((x) => `<tr><td>${esc(x.source)}</td><td>${esc(x.group_id)}</td><td>${esc(x.run_at.replace("T", " ").slice(0, 16))}</td><td class="num">${x.total_found}</td><td class="num">${x.retrieved}</td></tr>`).join("")}</table></div>
+  <h2>Exports</h2>
+  <div class="bar">
+    <a class="b" href="/api/export?fmt=csv"><button class="b">Toutes les références (CSV)</button></a>
+    <a class="b" href="/api/export?fmt=ris"><button class="b">Toutes les références (RIS)</button></a>
+    <a class="b" href="/api/export?fmt=ris&status=include"><button class="b">Incluses (RIS)</button></a>
+  </div>
+  <p class="note">Données : ${esc(d.data_dir)}</p>`;
+}
+
+/* ---------- Tri ---------- */
+async function tri(id) {
+  const q = `scope=${S.scope}&stage=${S.stage}`;
+  const n = await api(`/api/next?${q}`);
+  const rid = id || n.record_id;
+  const head = `
+  <div class="bar">
+    <select id="scope"><option value="sample">Échantillon de validation</option><option value="all">Tout le corpus</option></select>
+    <select id="stage"><option value="title_abstract">Titres et résumés</option><option value="full_text">Texte intégral</option></select>
+    <input id="rev" placeholder="Votre nom ou initiales" value="${esc(S.reviewer)}" size="18">
+    <progress max="${n.total || 1}" value="${n.screened}"></progress><span class="note">${n.screened} / ${n.total} triées</span>
+  </div>`;
+  if (!rid) {
+    $("#main").innerHTML = head + `<div class="card"><b>Tout est trié dans cette sélection.</b>
+      <p class="note">Changez de sélection ou d'étape, ou consultez l'accord avec l'IA.</p></div>`;
+    return bindBar();
+  }
+  const r = S.rec = await api(`/api/record/${rid}?stage=${S.stage}`);
+  const codes = Object.entries(S.protocol.exclusion_reason_codes).map(([k, v]) => `<option value="${k}">${k} — ${esc(v)}</option>`).join("");
+  const hd = r.human_decision;
+  $("#main").innerHTML = head + `
+  <div class="card">
+    <div class="meta"><span>n° ${r.id}</span><span>${esc(r.year || "année ?")}</span><span>${esc(r.journal || "")}</span>
+      <span>${esc(r.language || "langue ?")}</span><span>${esc(r.source)}</span>
+      ${r.pmid ? `<a href="https://pubmed.ncbi.nlm.nih.gov/${esc(r.pmid)}/" target="_blank" rel="noopener">PubMed ${esc(r.pmid)}</a>` : ""}
+      ${r.doi ? `<a href="https://doi.org/${esc(r.doi)}" target="_blank" rel="noopener">DOI</a>` : ""}</div>
+    <p class="title">${esc(r.title)}</p>
+    <div class="abs">${r.abstract ? esc(r.abstract) : `<span class="note">Pas de résumé disponible : trier sur le titre ou reporter au texte intégral.</span>`}</div>
+  </div>
+  <div class="card">
+    ${hd ? `<p>Décision actuelle : ${pill(hd.decision)} ${hd.reason_code ? esc(hd.reason_code) : ""} <span class="note">par ${esc(hd.reviewer)}, ${esc(hd.decided_at.slice(0, 10))}. Une nouvelle décision la remplace ; l'historique est conservé.</span></p>` : ""}
+    <div class="bar">
+      <button class="b inc" data-d="include">Inclure <kbd>I</kbd></button>
+      <button class="b unc" data-d="uncertain">Incertain <kbd>U</kbd></button>
+      <button class="b exc" data-d="exclude">Exclure <kbd>E</kbd></button>
+      <select id="code"><option value="">Motif d'exclusion…</option>${codes}</select>
+    </div>
+    <textarea id="comment" placeholder="Commentaire (facultatif)"></textarea>
+    <p id="msg" class="note">Pour exclure, choisissez d'abord le motif. ${r.ai_available && !hd ? "Une recommandation de l'IA existe ; elle s'affichera après votre décision." : ""}</p>
+    <div id="after">${hd ? afterBlock(r) : ""}</div>
+  </div>`;
+  bindBar();
+  document.querySelectorAll("button[data-d]").forEach((b) => b.onclick = () => decide(b.dataset.d));
+  if (hd) bindNext();
+}
+function afterBlock(r) {
+  const a = r.ai_recommendation, h = r.human_decision;
+  const ai = a ? `Recommandation de l'IA : ${pill(a.decision)} ${esc(a.reason_code || "")} — ${esc(a.comment || "")}
+    <br><span class="note">${a.decision === h.decision ? "Même décision que vous." : "Décision différente de la vôtre : la vôtre fait foi."}</span>`
+    : `<span class="note">Pas de recommandation de l'IA pour cette référence.</span>`;
+  return `<div class="strip">${ai}</div><div class="bar" style="margin-top:12px"><button class="b pri" id="next">Référence suivante <kbd>N</kbd></button></div>`;
+}
+function bindNext() { const b = $("#next"); if (b) b.onclick = () => tri(); }
+function bindBar() {
+  $("#scope").value = S.scope; $("#stage").value = S.stage;
+  $("#scope").onchange = (e) => { S.scope = e.target.value; store("scope", S.scope); tri(); };
+  $("#stage").onchange = (e) => { S.stage = e.target.value; tri(); };
+  $("#rev").onchange = (e) => { S.reviewer = e.target.value.trim(); store("reviewer", S.reviewer); };
+}
+async function decide(d) {
+  const msg = $("#msg");
+  if (!S.reviewer) { msg.className = "err"; msg.textContent = "Indiquez d'abord votre nom ou vos initiales en haut de la page."; $("#rev").focus(); return; }
+  const code = $("#code").value;
+  if (d === "exclude" && !code) { msg.className = "err"; msg.textContent = "Choisissez le motif d'exclusion avant d'exclure."; $("#code").focus(); return; }
+  try {
+    await api("/api/decision", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({record_id:S.rec.id, stage:S.stage, decision:d, reason_code:d === "exclude" ? code : "",
+                            comment:$("#comment").value, reviewer:S.reviewer})});
+    const r = await api(`/api/record/${S.rec.id}?stage=${S.stage}`);
+    msg.className = "note"; msg.innerHTML = `Enregistré : ${pill(d)}`;
+    $("#after").innerHTML = afterBlock(r); bindNext();
+    document.querySelectorAll("button[data-d]").forEach((b) => b.disabled = true);
+  } catch (e) { msg.className = "err"; msg.textContent = e.message; }
+}
+document.addEventListener("keydown", (e) => {
+  if (S.view !== "tri" || e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  const k = e.key.toLowerCase(), nx = $("#next");
+  if (k === "n" && nx) return nx.click();
+  const b = document.querySelector(`button[data-d="${{i:"include", u:"uncertain", e:"exclude"}[k]}"]`);
+  if (b && !b.disabled) b.click();
+});
+
+/* ---------- Références ---------- */
+async function refs() {
+  const R = S.refs, L = 25;
+  const d = await api(`/api/records?scope=all&status=${R.status}&q=${encodeURIComponent(R.q)}&offset=${R.offset}&limit=${L}`);
+  $("#main").innerHTML = `
+  <div class="bar">
+    <select id="fst">${["all", "unscreened", "include", "uncertain", "exclude"].map((s) => `<option value="${s}">${s === "all" ? "Tous les statuts" : LABEL[s]}</option>`).join("")}</select>
+    <input id="fq" placeholder="Chercher dans le titre ou la revue" size="34" value="${esc(R.q)}">
+    <span class="note">${d.total} références</span>
+  </div>
+  <div class="card"><table><tr><th>n°</th><th>Année</th><th>Titre</th><th>Statut</th></tr>
+  ${d.records.map((r) => `<tr class="click" data-id="${r.id}"><td>${r.id}</td><td>${esc(r.year || "")}</td><td>${esc(r.title)}<br><span class="note">${esc(r.journal || "")}</span></td><td>${pill(r.status)}</td></tr>`).join("") || `<tr><td colspan="4" class="note">Aucune référence.</td></tr>`}
+  </table></div>
+  <div class="bar"><button class="b" id="prev" ${R.offset ? "" : "disabled"}>Précédentes</button>
+    <span class="note">${d.total ? R.offset + 1 : 0} à ${Math.min(R.offset + L, d.total)}</span>
+    <button class="b" id="more" ${R.offset + L < d.total ? "" : "disabled"}>Suivantes</button></div>`;
+  $("#fst").value = R.status;
+  $("#fst").onchange = (e) => { R.status = e.target.value; R.offset = 0; refs(); };
+  $("#fq").onchange = (e) => { R.q = e.target.value; R.offset = 0; refs(); };
+  $("#prev").onclick = () => { R.offset = Math.max(0, R.offset - L); refs(); };
+  $("#more").onclick = () => { R.offset += L; refs(); };
+  document.querySelectorAll("tr.click").forEach((t) => t.onclick = () => { S.view = "tri"; S.stage = "title_abstract"; nav(); tri(+t.dataset.id); });
+}
+
+/* ---------- Accord avec l'IA ---------- */
+async function accord() {
+  const a = await api("/api/agreement?stage=title_abstract"), c = ["include", "uncertain", "exclude"];
+  if (!a.n) { $("#main").innerHTML = `<div class="card"><b>Pas encore de comparaison possible.</b>
+    <p class="note">La comparaison porte sur les références qui ont à la fois votre décision et une recommandation de l'IA. Triez l'échantillon de validation pour la faire apparaître.</p></div>`; return; }
+  $("#main").innerHTML = `
+  <h2>Accord entre vos décisions et les recommandations de l'IA</h2>
+  <div class="tiles">
+    <div class="tile"><b>${a.n}</b><span>références comparées</span></div>
+    <div class="tile"><b>${a.recall == null ? "—" : Math.round(a.recall * 100) + " %"}</b><span>rappel de l'IA sur vos inclusions${a.human_includes ? ` (${a.human_includes})` : ""}</span></div>
+    <div class="tile"><b>${Math.round(a.observed_agreement * 100)} %</b><span>décisions identiques</span></div>
+    <div class="tile"><b>${a.kappa ?? "—"}</b><span>kappa de Cohen</span></div>
+  </div>
+  <p class="note">Rappel : part de vos inclusions que l'IA n'a pas exclues (incluses ou incertaines). C'est la mesure qui compte pour utiliser l'IA comme second lecteur.</p>
+  <div class="card"><table>
+    <tr><th>Votre décision ↓ / IA →</th>${c.map((x) => `<th class="num">${LABEL[x]}</th>`).join("")}</tr>
+    ${c.map((h) => `<tr><td>${LABEL[h]}</td>${c.map((x) => `<td class="num">${a.matrix[h][x]}</td>`).join("")}</tr>`).join("")}
+  </table></div>
+  <h2>Vos inclusions que l'IA proposait d'exclure</h2>
+  <div class="card">${a.missed_records.length ? `<table>${a.missed_records.map((r) => `<tr class="click" data-id="${r.id}"><td>${r.id}</td><td>${esc(r.year || "")}</td><td>${esc(r.title)}</td></tr>`).join("")}</table>` : `<span class="note">Aucune pour l'instant.</span>`}</div>`;
+  document.querySelectorAll("tr.click").forEach((t) => t.onclick = () => { S.view = "tri"; nav(); tri(+t.dataset.id); });
+}
+
+/* ---------- Protocole ---------- */
+function proto() {
+  const p = S.protocol, li = (a) => `<ul>${a.map((x) => `<li>${x}</li>`).join("")}</ul>`;
+  const crit = (a) => li(a.map((c) => `<b>${esc(c.code)}</b> — ${esc(c.text)}`));
+  const kv = (o) => li(Object.entries(o || {}).map(([k, v]) => `<b>${esc(k)}</b> — ${esc(v)}`));
+  $("#main").innerHTML = `
+  ${p.status ? `<div class="strip">${esc(p.status)}</div>` : ""}
+  <h2>Objectif</h2><div class="card">${esc(p.general_objective)}${li(p.specific_objectives.map(esc))}</div>
+  <h2>Définition des EIM</h2><div class="card">${esc(p.operational_definition.text)}<br><span class="note">${esc(p.operational_definition.reference)}</span></div>
+  <h2>Critères d'inclusion</h2><div class="card">${crit(p.inclusion_criteria)}</div>
+  <h2>Critères d'exclusion</h2><div class="card">${crit(p.exclusion_criteria)}</div>
+  <h2>Motifs d'exclusion</h2><div class="card">${kv(p.exclusion_reason_codes)}</div>
+  <h2>Sources</h2><div class="card"><b>Automatisées</b>${kv(p.sources.automated)}<b>À importer manuellement</b>${kv(p.sources.manual_import || p.sources.not_automated)}</div>
+  ${p.scope_notes ? `<h2>Périmètre à trancher</h2><div class="card">${esc(p.scope_notes.decision_pending)}${kv(p.scope_notes.icimd_categories_relevant)}<span class="note">${esc(p.scope_notes.method)}</span></div>` : ""}
+  <h2>Stratégie de recherche</h2><div class="card">${esc(p.query_interpretation)}</div>`;
+}
+
+(async () => {
+  S.protocol = await api("/api/protocol");
+  $("#ptitle").textContent = S.protocol.title;
+  $("#pver").textContent = "Protocole " + S.protocol.version;
+  go("dash");
+})().catch((e) => { $("#main").innerHTML = `<div class="card err">${esc(e.message)}</div>`; });
+</script>
+</body>
+</html>

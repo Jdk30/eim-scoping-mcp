@@ -1,0 +1,72 @@
+{
+  "id": "eim-afrique",
+  "version": "0.1-fidele",
+  "source_document": "PROTOCOLE SCOPING REVIEW corrigé2 (1).docx",
+  "title": "Scoping review : erreurs innées du métabolisme (EIM) en Afrique",
+  "general_objective": "Améliorer les connaissances sur les EIM en faisant une revue de toutes les publications existantes en Afrique",
+  "specific_objectives": [
+    "Identifier toutes les études et publications sur les EIM en Afrique",
+    "Déterminer les différentes EIM diagnostiquées en Afrique chez l'humain",
+    "Déterminer les moyens diagnostiques utilisés pour la mise au point de ces EIM",
+    "Identifier les programmes de dépistage des EIM existant en Afrique",
+    "Identifier les lacunes existantes sur les EIM en Afrique",
+    "Identifier les moyens thérapeutiques proposés aux patients et les plans de suivi",
+    "Établir le gap sur les EIM en Afrique en termes de connaissances et de moyens diagnostiques"
+  ],
+  "operational_definition": {
+    "text": "EIM définies selon les critères proposés par Ferreira et al.",
+    "reference": "Ferreira CR, van Karnebeek CDM, Vockley J, Blau N. A proposed nosology of inborn errors of metabolism. Genet Med. 21:102-106. doi:10.1038/s41436-018-0022-8"
+  },
+  "inclusion_criteria": [
+    {"code": "I1", "text": "Article ou abstract ayant travaillé sur la population africaine"},
+    {"code": "I2", "text": "Respecte la définition des EIM selon Ferreira et al."},
+    {"code": "I3", "text": "Décrit les voies métaboliques et les techniques diagnostiques utilisées"},
+    {"code": "I4", "text": "Publié de 2000 à 2023"},
+    {"code": "I5", "text": "Publié en anglais ou en français"}
+  ],
+  "exclusion_criteria": [
+    {"code": "E1", "text": "Article ayant travaillé sur un modèle animal"},
+    {"code": "E2", "text": "Article ne répondant pas à la définition des EIM"}
+  ],
+  "exclusion_reason_codes": {
+    "E1": "Modèle animal",
+    "E2": "Ne répond pas à la définition des EIM (Ferreira et al.)",
+    "NOT_I1": "Population non africaine",
+    "NOT_I3": "Ne décrit ni voies métaboliques ni techniques diagnostiques",
+    "NOT_I4": "Hors période 2000-2023",
+    "NOT_I5": "Langue autre que l'anglais ou le français",
+    "NO_FULLTEXT": "Texte intégral inaccessible",
+    "OTHER": "Autre motif (préciser en commentaire)"
+  },
+  "period": {"from_year": 2000, "to_year": 2023},
+  "languages": ["eng", "fre"],
+  "keyword_groups": [
+    {"id": "K1", "concept": "metabolic disorder", "extra": ["screening"]},
+    {"id": "K2", "concept": "inherited errors of metabolism", "extra": ["screening"]},
+    {"id": "K3", "concept": "congenital disorder of metabolism", "extra": ["screening"]},
+    {"id": "K4", "concept": "inborn errors of metabolism", "extra": ["screening"]},
+    {"id": "K5", "concept": "inborn errors of metabolism", "extra": ["frequency"]},
+    {"id": "K6", "concept": "genetic metabolic disorder", "extra": ["screening"]}
+  ],
+  "geography_term": "Africa",
+  "age_terms": ["newborn", "child", "infant", "pediatric"],
+  "query_interpretation": "Chaque ligne de mots-clés du protocole est lue comme : concept AND Africa AND terme(s) supplémentaire(s) AND (newborn OR child OR infant OR pediatric). Le protocole ne précise pas les opérateurs ; c'est une hypothèse à valider.",
+  "sources": {
+    "automated": {
+      "pubmed": "PubMed / MEDLINE via NCBI E-utilities",
+      "europepmc": "Europe PMC (inclut MEDLINE et les preprints)"
+    },
+    "not_automated": {
+      "EMBASE": "Sous licence, pas d'accès institutionnel : import manuel RIS/CSV si un accès est obtenu",
+      "Web of Science": "Sous licence, pas d'accès institutionnel : import manuel si un accès est obtenu",
+      "Scopus": "Sous licence, pas d'accès institutionnel : import manuel si un accès est obtenu",
+      "Google Scholar": "Pas d'API ; l'automatisation de l'interface n'est pas autorisée : recherche manuelle",
+      "ResearchGate": "Pas d'API ; réseau social et non base bibliographique : recherche manuelle",
+      "Revues scientifiques, condensés d'abstracts": "Recherche manuelle, ajout par import"
+    }
+  },
+  "methodology": [
+    "Kerr K, McAneney H, McKnight AJ. Protocol for a scoping review of multi-omic analysis for rare diseases. BMJ Open. 2019;9(5):e026278",
+    "Recommandations du Joanna Briggs Institute pour les scoping reviews"
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "id": "eim-afrique",
+  "version": "0.2-ameliore",
+  "status": "PROPOSITION à valider par le chercheur et à faire relire selon PRESS avant enregistrement",
+  "based_on": "protocol.json (0.1-fidele)",
+  "title": "Scoping review : erreurs innées du métabolisme (EIM) en Afrique",
+  "general_objective": "Cartographier les connaissances publiées sur les EIM étudiées, diagnostiquées et prises en charge en Afrique",
+  "specific_objectives": [
+    "Identifier les études et publications sur les EIM en Afrique",
+    "Déterminer les EIM diagnostiquées en Afrique chez l'humain",
+    "Déterminer les moyens diagnostiques utilisés",
+    "Identifier les programmes de dépistage des EIM existant en Afrique",
+    "Identifier les moyens thérapeutiques proposés et les plans de suivi",
+    "Établir les lacunes en termes de connaissances, de diagnostic et de prise en charge"
+  ],
+  "framework": {
+    "population": "Humains, tout âge",
+    "concept": "Erreurs innées du métabolisme : épidémiologie, diagnostic, dépistage, traitement, suivi",
+    "context": "Les 54 pays d'Afrique, Afrique du Nord incluse"
+  },
+  "operational_definition": {
+    "text": "EIM définies selon la classification internationale ICIMD.",
+    "reference": "Ferreira CR, Rahman S, Keller M, Zschocke J; ICIMD Advisory Group. An international classification of inherited metabolic disorders (ICIMD). J Inherit Metab Dis. 2021;44(1):164-177. doi:10.1002/jimd.12348",
+    "previous": "Ferreira CR, van Karnebeek CDM, Vockley J, Blau N. A proposed nosology of inborn errors of metabolism. Genet Med. 2019;21:102-106. doi:10.1038/s41436-018-0022-8"
+  },
+  "scope_notes": {
+    "checked_on": "2026-11-11",
+    "method": "Article ICIMD (PMC9021760) et documents IEMbase ; la liste complète des 1 450 maladies (icimd.org, supplément Excel de l'article) n'a pas été consultée",
+    "icimd_categories_relevant": {
+      "G6PD": "Très probablement inclus : IEMbase (qui suit l'ICIMD) le liste sous le code IEM0327, voie des pentoses phosphates",
+      "Hypercholestérolémie familiale": "Catégorie 15 'métabolisme des lipoprotéines', qui couvre les hypercholestérolémies ; la maladie n'est pas nommée dans le texte de l'article",
+      "Albinisme": "Le déficit en tyrosinase (OCA1, gène TYR) figure dans IEMbase ; statut de l'OCA2, forme la plus fréquente en Afrique, non vérifié",
+      "Hyperplasie congénitale des surrénales": "Catégorie 24, troubles des hormones stéroïdes",
+      "Crigler-Najjar, Gilbert": "Catégorie 17, produits de dégradation de l'hème (bilirubine)",
+      "Hémochromatose": "Catégorie 22, métabolisme du fer",
+      "Amylose héréditaire à transthyrétine": "Non trouvée ; à vérifier dans la liste complète"
+    },
+    "decision_pending": "Suivre l'ICIMD sans restriction, ou déclarer a priori des exclusions motivées (G6PD, albinisme, hypercholestérolémie familiale). À trancher par le chercheur avant le tri."
+  },
+  "inclusion_criteria": [
+    {"code": "I1", "text": "Étude menée dans un pays d'Afrique, ou patients résidant en Afrique même s'ils sont diagnostiqués à l'étranger ; études multi-pays incluses si les données africaines sont rapportées séparément"},
+    {"code": "I2", "text": "Porte sur au moins une EIM au sens de l'ICIMD"},
+    {"code": "I3", "text": "Étude primaire rapportant au moins un cas ou une donnée chez l'humain (épidémiologie, clinique, diagnostic, dépistage, traitement ou suivi)"},
+    {"code": "I4", "text": "Publiée à partir du 1er janvier 2000, jusqu'à la date de la recherche"},
+    {"code": "I5", "text": "Toute langue ; les articles ni en anglais ni en français sont traités par traduction automatique, signalée"},
+    {"code": "I6", "text": "Articles originaux, séries de cas, rapports de cas, abstracts de conférences indexés, preprints"}
+  ],
+  "exclusion_criteria": [
+    {"code": "E1", "text": "Modèle animal ou étude in vitro sans donnée de patient"},
+    {"code": "E2", "text": "Ne porte pas sur une EIM au sens de l'ICIMD"},
+    {"code": "E3", "text": "Revue de littérature, éditorial ou commentaire sans donnée primaire (références dépouillées)"},
+    {"code": "E4", "text": "Population d'ascendance africaine vivant hors d'Afrique, sans donnée africaine"}
+  ],
+  "exclusion_reason_codes": {
+    "E1": "Modèle animal ou in vitro sans patient",
+    "E2": "Pas une EIM (ICIMD)",
+    "E3": "Pas de donnée primaire (revue, éditorial)",
+    "E4": "Diaspora sans donnée africaine",
+    "NOT_I1": "Étude non menée en Afrique / patients non résidents",
+    "NOT_I4": "Antérieure à 2000",
+    "DUPLICATE_REPORT": "Même étude déjà incluse (publication multiple)",
+    "NO_FULLTEXT": "Texte intégral inaccessible",
+    "OTHER": "Autre motif (préciser en commentaire)"
+  },
+  "period": {"from_year": 2000, "to_year": null},
+  "languages": [],
+  "keyword_groups": [
+    {"id": "S1", "label": "Bloc EIM ET bloc Afrique"}
+  ],
+  "search_blocks": {
+    "iem": {
+      "mesh": ["Metabolism, Inborn Errors"],
+      "text": [
+        "inborn error of metabolism", "inborn errors of metabolism",
+        "inherited metabolic disorder", "inherited metabolic disorders",
+        "inherited metabolic disease", "inherited metabolic diseases",
+        "inherited errors of metabolism", "congenital disorder of metabolism",
+        "genetic metabolic disorder", "hereditary metabolic disease",
+        "erreurs innées du métabolisme", "maladies héréditaires du métabolisme",
+        "phenylketonuria", "hyperphenylalaninemia", "galactosemia", "galactosaemia",
+        "hereditary fructose intolerance", "maple syrup urine disease",
+        "tyrosinemia", "tyrosinaemia", "homocystinuria", "alkaptonuria",
+        "organic acidemia", "organic acidaemia", "organic aciduria",
+        "methylmalonic acidemia", "propionic acidemia", "glutaric aciduria", "isovaleric acidemia",
+        "urea cycle disorder", "urea cycle disorders",
+        "fatty acid oxidation disorder", "fatty acid oxidation disorders", "MCAD deficiency",
+        "glycogen storage disease", "lysosomal storage disease", "lysosomal storage disorder",
+        "mucopolysaccharidosis", "Gaucher disease", "Fabry disease", "Pompe disease",
+        "Niemann-Pick", "Tay-Sachs", "metachromatic leukodystrophy",
+        "peroxisomal disorder", "mitochondrial disease", "mitochondrial disorder",
+        "congenital disorders of glycosylation", "biotinidase deficiency",
+        "Wilson disease", "cystinosis", "porphyria",
+        "expanded newborn screening"
+      ]
+    },
+    "africa": {
+      "mesh": ["Africa"],
+      "text": [
+        "Africa", "African", "sub-Saharan", "Maghreb",
+        "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cabo Verde",
+        "Cape Verde", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo",
+        "Cote d'Ivoire", "Ivory Coast", "Djibouti", "Egypt", "Equatorial Guinea", "Eritrea",
+        "Eswatini", "Swaziland", "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea",
+        "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi",
+        "Mali", "Mauritania", "Mauritius", "Morocco", "Mozambique", "Namibia", "Niger",
+        "Nigeria", "Rwanda", "Sao Tome", "Senegal", "Seychelles", "Sierra Leone", "Somalia",
+        "South Africa", "South Sudan", "Sudan", "Tanzania", "Togo", "Tunisia", "Uganda",
+        "Zambia", "Zimbabwe"
+      ]
+    }
+  },
+  "query_interpretation": "Deux blocs combinés par ET : (descripteur MeSH éclaté OU termes libres en titre/résumé pour les EIM) ET (descripteur MeSH Africa éclaté OU noms de pays en titre/résumé). Aucune restriction d'âge, de langue ni au dépistage, pour ne pas écarter les études diagnostiques, thérapeutiques et chez l'adulte. Europe PMC n'a pas d'éclatement MeSH : termes libres en titre/résumé uniquement.",
+  "sources": {
+    "automated": {
+      "pubmed": "PubMed / MEDLINE via NCBI E-utilities",
+      "europepmc": "Europe PMC (inclut MEDLINE, preprints, thèses)"
+    },
+    "manual_import": {
+      "African Journals Online (AJOL)": "Recherche sur le site, export puis import_records",
+      "African Index Medicus / Global Index Medicus (OMS)": "Recherche sur le site, export puis import_records",
+      "Google Scholar": "Recherche manuelle limitée aux premières pages, pour compléter",
+      "EMBASE, Scopus, Web of Science": "Import si un accès est obtenu ; sinon limite à déclarer",
+      "Références citées et articles citants": "Dépouillement des articles inclus et des revues exclues"
+    }
+  },
+  "methodology": [
+    "Recommandations du Joanna Briggs Institute pour les scoping reviews",
+    "PRISMA-ScR pour le rapport ; PRISMA-S pour la stratégie de recherche",
+    "Relecture de la stratégie de recherche selon PRESS",
+    "Enregistrement du protocole sur OSF",
+    "Kerr K, McAneney H, McKnight AJ. BMJ Open. 2019;9(5):e026278 (modèle de protocole)"
+  ]
+}

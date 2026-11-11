@@ -1,0 +1,5 @@
+# Données de la revue : résumés sous droit d'auteur et décisions de tri
+data/
+__pycache__/
+*.pyc
+.venv/
